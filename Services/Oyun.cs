@@ -21,6 +21,7 @@ public class Oyun
     private const float BaslangicHizi = 3.2f;
 
     private readonly Random _rastgele = new();
+    private readonly SkorDeposu? _skorDeposu;
     private readonly List<Engel> _engeller = new();
 
     public float AlanGenisligi { get; }
@@ -33,6 +34,10 @@ public class Oyun
     public OyunDurumu Durum { get; private set; } = OyunDurumu.Hazir;
     public float Hiz { get; private set; } = BaslangicHizi;
     public int Skor { get; private set; }
+    public int EnYuksekSkor { get; private set; }
+
+    /// <summary>Son biten oyunda en yüksek skor geçildiyse true.</summary>
+    public bool YeniRekor { get; private set; }
 
     /// <summary>Zeminin kayma animasyonu için toplam kayma miktarı.</summary>
     public float ZeminKaymasi { get; private set; }
@@ -43,10 +48,13 @@ public class Oyun
     /// <summary>Kuş bir engeli geçip skor arttığında tetiklenir; argüman yeni skordur.</summary>
     public event EventHandler<int>? SkorDegisti;
 
-    public Oyun(float alanGenisligi, float alanYuksekligi)
+    /// <param name="skorDeposu">Verilirse en yüksek skor bu depodan okunur ve rekorda kaydedilir.</param>
+    public Oyun(float alanGenisligi, float alanYuksekligi, SkorDeposu? skorDeposu = null)
     {
         AlanGenisligi = alanGenisligi;
         AlanYuksekligi = alanYuksekligi;
+        _skorDeposu = skorDeposu;
+        EnYuksekSkor = skorDeposu?.Oku() ?? 0;
         Kus = new Kus(0, 0);
         Sifirla();
     }
@@ -57,6 +65,7 @@ public class Oyun
         Kus = new Kus(AlanGenisligi * 0.25f, OynanabilirYukseklik / 2 - 13);
         Hiz = BaslangicHizi;
         Skor = 0;
+        YeniRekor = false;
 
         _engeller.Clear();
         for (int i = 0; i < EngelSayisi; i++)
@@ -126,6 +135,14 @@ public class Oyun
     private void Bitir()
     {
         Durum = OyunDurumu.Bitti;
+
+        if (Skor > EnYuksekSkor)
+        {
+            EnYuksekSkor = Skor;
+            YeniRekor = true;
+            _skorDeposu?.Kaydet(Skor);
+        }
+
         OyunBitti?.Invoke(this, EventArgs.Empty);
     }
 

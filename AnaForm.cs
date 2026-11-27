@@ -11,6 +11,7 @@ namespace FlappyBird;
 public partial class AnaForm : Form
 {
     private Oyun _oyun = null!;
+    private readonly SkorDeposu _skorDeposu = new();
 
     public AnaForm()
     {
@@ -21,7 +22,7 @@ public partial class AnaForm : Form
     {
         // Panel Dock=Fill ile formu kapladığı için oyun alanı formun iç boyutudur.
         // (Load anında panelin yerleşimi henüz hesaplanmamış olabilir.)
-        _oyun = new Oyun(ClientSize.Width, ClientSize.Height);
+        _oyun = new Oyun(ClientSize.Width, ClientSize.Height, _skorDeposu);
         _oyun.SkorDegisti += Oyun_SkorDegisti;
         _oyun.OyunBitti += Oyun_OyunBitti;
         oyunZamanlayici.Start();
@@ -30,8 +31,14 @@ public partial class AnaForm : Form
     private void Oyun_SkorDegisti(object? sender, int skor) =>
         Text = $"Flappy Bird — YMH219  |  Skor: {skor}";
 
-    private void Oyun_OyunBitti(object? sender, EventArgs e) =>
+    private void Oyun_OyunBitti(object? sender, EventArgs e)
+    {
         Text = $"Flappy Bird — YMH219  |  Oyun bitti, skor: {_oyun.Skor}";
+
+        // Skor dosyası yazılamadıysa oyunu durdurmadan kullanıcıya bildir.
+        if (_skorDeposu.SonHata is string hata)
+            Text += "  (" + hata + ")";
+    }
 
     // ---------- Oyun döngüsü ----------
 
@@ -119,6 +126,11 @@ public partial class AnaForm : Form
         using var orta = new Font("Segoe UI", 18, FontStyle.Bold);
         using var yaziRengi = new SolidBrush(Color.FromArgb(70, 50, 20));
         g.DrawString($"Skor: {_oyun.Skor}", orta, yaziRengi, new RectangleF(kutu.X, kutu.Y + 75, kutu.Width, 36), ortala);
+
+        using var rekorYazisi = new Font("Segoe UI", 12, FontStyle.Bold);
+        string rekor = _oyun.YeniRekor ? $"Yeni rekor! En yüksek: {_oyun.EnYuksekSkor}" : $"En yüksek: {_oyun.EnYuksekSkor}";
+        var rekorRengi = _oyun.YeniRekor ? Brushes.SeaGreen : yaziRengi;
+        g.DrawString(rekor, rekorYazisi, rekorRengi, new RectangleF(kutu.X, kutu.Y + 112, kutu.Width, 30), ortala);
 
         using var kucuk = new Font("Segoe UI", 11);
         g.DrawString("Enter / R ile yeniden başla", kucuk, yaziRengi, new RectangleF(kutu.X, kutu.Y + 150, kutu.Width, 30), ortala);
