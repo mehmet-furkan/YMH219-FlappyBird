@@ -26,6 +26,7 @@ public class Oyun
     private readonly Random _rastgele = new();
     private readonly SkorDeposu? _skorDeposu;
     private readonly List<Engel> _engeller = new();
+    private readonly List<Bulut> _bulutlar = new();
 
     public float AlanGenisligi { get; }
     public float AlanYuksekligi { get; }
@@ -61,6 +62,7 @@ public class Oyun
         AlanYuksekligi = alanYuksekligi;
         _skorDeposu = skorDeposu;
         EnYuksekSkor = skorDeposu?.Oku() ?? 0;
+        BulutlariOlustur();
         Kus = new Kus(0, 0);
         Sifirla();
     }
@@ -109,6 +111,10 @@ public class Oyun
     /// <summary>Oyun döngüsünün bir karesi: her şeyi bir adım ilerletir.</summary>
     public void Tik()
     {
+        // Bulutlar "Hazır" ekranında da kaysın, ekran canlı görünsün.
+        if (Durum is OyunDurumu.Hazir or OyunDurumu.Oynaniyor)
+            BulutlariKaydir();
+
         if (Durum != OyunDurumu.Oynaniyor) return;
 
         Kus.Guncelle();
@@ -162,6 +168,26 @@ public class Oyun
         OyunBitti?.Invoke(this, EventArgs.Empty);
     }
 
+    private void BulutlariOlustur()
+    {
+        for (int i = 0; i < 4; i++)
+            _bulutlar.Add(new Bulut(i * AlanGenisligi / 3.5f, RastgeleBulutY(), 0.7f + (float)_rastgele.NextDouble() * 0.6f));
+    }
+
+    private void BulutlariKaydir()
+    {
+        float hiz = Durum == OyunDurumu.Hazir ? BaslangicHizi : Hiz;
+        foreach (var bulut in _bulutlar)
+        {
+            bulut.Kaydir(hiz);
+            if (bulut.EkrandanCikti)
+                bulut.YenidenKonumlandir(AlanGenisligi + _rastgele.Next(0, 120), RastgeleBulutY());
+        }
+    }
+
+    // Bulutlar gökyüzünün üst yarısında dolaşsın.
+    private float RastgeleBulutY() => 20 + (float)_rastgele.NextDouble() * (OynanabilirYukseklik * 0.45f);
+
     private float RastgeleBoslukY()
     {
         // Boşluk ne tavana ne zemine fazla yakın olsun.
@@ -175,6 +201,10 @@ public class Oyun
 
     public void Ciz(Graphics g)
     {
+        // Çizim sırası önemli: önce arkadakiler (bulut), sonra öndekiler.
+        foreach (var bulut in _bulutlar)
+            bulut.Ciz(g);
+
         foreach (var engel in _engeller)
             engel.Ciz(g);
 
