@@ -52,13 +52,15 @@ dotnet run
 
 ## Temel Özellikler
 
-- Yer çekimi ve zıplama fiziği; kuş hızına göre yukarı/aşağı eğilir
+- Yer çekimi ve zıplama fiziği; kuş hızına göre yukarı/aşağı eğilir, yükselirken kanadını kaldırır
+- Arka planda engellerden daha yavaş kayan bulutlar (derinlik hissi)
 - Sağdan sola kayan, boşluk yüksekliği rastgele değişen engeller (ekrandan çıkan engel sağa yeniden yerleştirilir)
 - **Çarpışma:** kuş bir engele veya zemine çarpınca oyun durur, **Game Over** paneli gösterilir
 - **Skor:** geçilen her engel 1 puan; ekranın üstünde büyük skor yazısı, pencere başlığında da skor
 - **Seviye:** her 5 puanda bir seviye atlanır ve engeller hızlanır
 - **En yüksek skor** `%AppData%\YMH219-FlappyBird\enyuksek.txt` dosyasında saklanır; rekor kırılınca "Yeni rekor!" yazısı
 - **Hazır** ekranı ("Space ile başla"), **duraklatma** ekranı
+- Pencere arka plana geçince (Alt+Tab) oyun **kendiliğinden duraklar**
 
 ## Nesne Tabanlı Yapı
 
@@ -67,6 +69,7 @@ Models/
   OyunNesnesi.cs   → soyut sınıf: X, Y, Genislik, Yukseklik, virtual Sinirlar, abstract Ciz(Graphics)
   Kus.cs           → OyunNesnesi'nden türer: yer çekimi, Zipla(), Guncelle(), kendi Ciz() ve daha küçük çarpışma kutusu (override Sinirlar)
   Engel.cs         → OyunNesnesi'nden türer: üst/alt sütun, Kaydir(), YenidenKonumlandir(), Carpisiyor(), Gecildi
+  Bulut.cs         → OyunNesnesi'nden türer: arka plan süsü, engellerin %30 hızıyla kayar, çarpışmaya katılmaz
 Services/
   Oyun.cs          → oyunun kuralları ve durumu: Durum (Hazir/Oynaniyor/Duraklatildi/Bitti), Skor, Seviye, Hiz, EnYuksekSkor;
                      Tik(), Zipla(), DuraklatVeyaDevamEt(), YenidenBaslat(); SkorDegisti ve OyunBitti olayları
@@ -75,7 +78,7 @@ OyunPaneli.cs      → DoubleBuffered Panel
 AnaForm.cs         → Timer tikinde Oyun.Tik() + Invalidate(); Paint'te çizim; tuşları Oyun'a iletir
 ```
 
-- **Kalıtım:** `Kus` ve `Engel`, `OyunNesnesi` soyut sınıfından türer; konum/boyut ortak.
+- **Kalıtım:** `Kus`, `Engel` ve `Bulut`, `OyunNesnesi` soyut sınıfından türer; konum/boyut ortak.
 - **Çok biçimlilik:** her nesne `Ciz(Graphics)` metodunu kendine göre yazar; `Kus` ayrıca `Sinirlar` özelliğini override eder.
 - **Kapsülleme:** konum ve hız `protected set` / `private set`; dışarıdan sadece metotlarla (`Zipla`, `Kaydir`) değişir.
 - **Olaylar:** `Oyun` formu tanımaz; form `SkorDegisti` ve `OyunBitti` olaylarına abone olup başlığı günceller.
