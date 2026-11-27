@@ -5,7 +5,8 @@ namespace FlappyBird;
 
 /// <summary>
 /// Oyun penceresi. Timer her ~16 ms'de bir oyunu bir kare ilerletir ve paneli yeniden çizdirir.
-/// Klavye: Space / Yukarı ok = zıpla.
+/// Klavye: Space / Yukarı ok = zıpla, Enter / R = yeniden başla.
+/// Form sadece girdiyi Oyun'a iletir ve çizer; kurallar Oyun sınıfındadır.
 /// </summary>
 public partial class AnaForm : Form
 {
@@ -21,8 +22,16 @@ public partial class AnaForm : Form
         // Panel Dock=Fill ile formu kapladığı için oyun alanı formun iç boyutudur.
         // (Load anında panelin yerleşimi henüz hesaplanmamış olabilir.)
         _oyun = new Oyun(ClientSize.Width, ClientSize.Height);
+        _oyun.SkorDegisti += Oyun_SkorDegisti;
+        _oyun.OyunBitti += Oyun_OyunBitti;
         oyunZamanlayici.Start();
     }
+
+    private void Oyun_SkorDegisti(object? sender, int skor) =>
+        Text = $"Flappy Bird — YMH219  |  Skor: {skor}";
+
+    private void Oyun_OyunBitti(object? sender, EventArgs e) =>
+        Text = $"Flappy Bird — YMH219  |  Oyun bitti, skor: {_oyun.Skor}";
 
     // ---------- Oyun döngüsü ----------
 
@@ -43,7 +52,9 @@ public partial class AnaForm : Form
         if (_oyun.Durum != OyunDurumu.Bitti)
             SkoruCiz(g);
 
-        if (_oyun.Durum == OyunDurumu.Bitti)
+        if (_oyun.Durum == OyunDurumu.Hazir)
+            HazirYazisiniCiz(g);
+        else if (_oyun.Durum == OyunDurumu.Bitti)
             OyunBittiPaneliniCiz(g);
     }
 
@@ -68,6 +79,26 @@ public partial class AnaForm : Form
         g.FillPath(Brushes.White, yol);
     }
 
+    /// <summary>Oyun başlamadan önce gösterilen başlık ve "Space ile başla" yazısı.</summary>
+    private void HazirYazisiniCiz(Graphics g)
+    {
+        var ortala = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+        float orta = oyunPaneli.Height * 0.62f;
+
+        using var baslik = new Font("Segoe UI", 34, FontStyle.Bold);
+        using var golge = new SolidBrush(Color.FromArgb(90, 0, 0, 0));
+        var baslikAlani = new RectangleF(0, oyunPaneli.Height * 0.18f, oyunPaneli.Width, 70);
+        g.DrawString("FLAPPY BIRD", baslik, golge, new RectangleF(baslikAlani.X + 3, baslikAlani.Y + 3, baslikAlani.Width, baslikAlani.Height), ortala);
+        g.DrawString("FLAPPY BIRD", baslik, Brushes.Gold, baslikAlani, ortala);
+
+        var kutu = new RectangleF(oyunPaneli.Width / 2f - 140, orta - 28, 280, 56);
+        using (var zemin = new SolidBrush(Color.FromArgb(200, 255, 255, 255)))
+            g.FillRectangle(zemin, kutu);
+        using var yazi = new Font("Segoe UI", 16, FontStyle.Bold);
+        using var renk = new SolidBrush(Color.FromArgb(30, 64, 175));
+        g.DrawString("Space ile başla", yazi, renk, kutu, ortala);
+    }
+
     /// <summary>Ekranı karartıp ortada "Game Over" kutusu çizer.</summary>
     private void OyunBittiPaneliniCiz(Graphics g)
     {
@@ -88,16 +119,25 @@ public partial class AnaForm : Form
         using var orta = new Font("Segoe UI", 18, FontStyle.Bold);
         using var yaziRengi = new SolidBrush(Color.FromArgb(70, 50, 20));
         g.DrawString($"Skor: {_oyun.Skor}", orta, yaziRengi, new RectangleF(kutu.X, kutu.Y + 75, kutu.Width, 36), ortala);
+
+        using var kucuk = new Font("Segoe UI", 11);
+        g.DrawString("Enter / R ile yeniden başla", kucuk, yaziRengi, new RectangleF(kutu.X, kutu.Y + 150, kutu.Width, 30), ortala);
     }
 
     // ---------- Girdi ----------
 
     private void AnaForm_KeyDown(object? sender, KeyEventArgs e)
     {
-        if (e.KeyCode is Keys.Space or Keys.Up)
+        switch (e.KeyCode)
         {
-            _oyun.Zipla();
-            e.SuppressKeyPress = true;
+            case Keys.Space or Keys.Up:
+                _oyun.Zipla();
+                e.SuppressKeyPress = true;
+                break;
+            case Keys.Enter or Keys.R:
+                _oyun.YenidenBaslat();
+                e.SuppressKeyPress = true;
+                break;
         }
     }
 

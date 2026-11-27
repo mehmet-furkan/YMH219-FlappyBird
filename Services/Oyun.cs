@@ -65,6 +65,13 @@ public class Oyun
         Durum = OyunDurumu.Hazir;
     }
 
+    /// <summary>Enter / R tuşu: oyunu baştan kurar ve "Hazır" durumuna döndürür.</summary>
+    public void YenidenBaslat()
+    {
+        Sifirla();
+        SkorDegisti?.Invoke(this, Skor);
+    }
+
     /// <summary>Space/yukarı tuşu: oyun hazırsa başlatır, oynanıyorsa kuşu zıplatır.</summary>
     public void Zipla()
     {
