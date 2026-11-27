@@ -29,7 +29,7 @@ public class Bulut : OyunNesnesi
 
     public override void Ciz(Graphics g)
     {
-        using var firca = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
+        using var firca = new SolidBrush(Color.FromArgb(245, 250, 255)); // opak: daireler üst üste binince iz kalmasın
         // Üç daireyi üst üste bindirerek bulut şekli
         g.FillEllipse(firca, X, Y + Yukseklik * 0.35f, Genislik * 0.5f, Yukseklik * 0.65f);
         g.FillEllipse(firca, X + Genislik * 0.22f, Y, Genislik * 0.5f, Yukseklik);
