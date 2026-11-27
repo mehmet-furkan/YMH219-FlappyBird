@@ -159,6 +159,16 @@ public partial class AnaForm : Form
         g.DrawString("Enter / R ile yeniden başla", kucuk, yaziRengi, new RectangleF(kutu.X, kutu.Y + 150, kutu.Width, 30), ortala);
     }
 
+    /// <summary>
+    /// Kullanıcı başka pencereye geçerse (Alt+Tab vb.) oyun kendiliğinden duraklar,
+    /// geri döndüğünde P ile devam eder; arka planda kuş düşüp ölmez.
+    /// </summary>
+    private void AnaForm_Deactivate(object? sender, EventArgs e)
+    {
+        _oyun.Duraklat();
+        oyunPaneli.Invalidate();
+    }
+
     // ---------- Girdi ----------
 
     private void AnaForm_KeyDown(object? sender, KeyEventArgs e)

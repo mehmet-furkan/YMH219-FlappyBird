@@ -48,6 +48,7 @@ partial class AnaForm
         Text = "Flappy Bird — YMH219";
         Load += AnaForm_Load;
         KeyDown += AnaForm_KeyDown;
+        Deactivate += AnaForm_Deactivate;
         ResumeLayout(false);
     }
 

@@ -89,6 +89,13 @@ public class Oyun
         SkorDegisti?.Invoke(this, Skor);
     }
 
+    /// <summary>Oyun oynanıyorsa duraklatır (pencere arka plana geçince kullanılır).</summary>
+    public void Duraklat()
+    {
+        if (Durum == OyunDurumu.Oynaniyor)
+            Durum = OyunDurumu.Duraklatildi;
+    }
+
     /// <summary>P tuşu: oynanırken duraklatır, duraklatılmışken devam ettirir.</summary>
     public void DuraklatVeyaDevamEt()
     {
