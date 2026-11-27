@@ -56,7 +56,7 @@ public partial class AnaForm : Form
         ArkaPlaniCiz(g);
         _oyun.Ciz(g);
 
-        if (_oyun.Durum != OyunDurumu.Bitti)
+        if (_oyun.Durum is OyunDurumu.Oynaniyor or OyunDurumu.Duraklatildi)
             SkoruCiz(g);
 
         if (_oyun.Durum == OyunDurumu.Hazir)
@@ -87,7 +87,6 @@ public partial class AnaForm : Form
         g.DrawPath(kenar, yol);
         g.FillPath(Brushes.White, yol);
 
-        if (_oyun.Durum == OyunDurumu.Hazir) return;
         using var kucuk = new Font("Segoe UI", 12, FontStyle.Bold);
         using var renk = new SolidBrush(Color.FromArgb(200, 30, 41, 59));
         g.DrawString($"Seviye {_oyun.Seviye}", kucuk, renk, new RectangleF(0, 118, oyunPaneli.Width, 24), ortala);
