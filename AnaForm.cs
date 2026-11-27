@@ -39,6 +39,9 @@ public partial class AnaForm : Form
 
         ArkaPlaniCiz(g);
         _oyun.Ciz(g);
+
+        if (_oyun.Durum == OyunDurumu.Bitti)
+            OyunBittiPaneliniCiz(g);
     }
 
     private void ArkaPlaniCiz(Graphics g)
@@ -46,6 +49,24 @@ public partial class AnaForm : Form
         var alan = oyunPaneli.ClientRectangle;
         using var gokyuzu = new LinearGradientBrush(alan, Color.FromArgb(125, 211, 252), Color.FromArgb(224, 242, 254), 90f);
         g.FillRectangle(gokyuzu, alan);
+    }
+
+    /// <summary>Ekranı karartıp ortada "Game Over" kutusu çizer.</summary>
+    private void OyunBittiPaneliniCiz(Graphics g)
+    {
+        var alan = oyunPaneli.ClientRectangle;
+        using (var karartma = new SolidBrush(Color.FromArgb(110, 0, 0, 0)))
+            g.FillRectangle(karartma, alan);
+
+        var kutu = new Rectangle(alan.Width / 2 - 150, alan.Height / 2 - 110, 300, 200);
+        using (var zemin = new SolidBrush(Color.FromArgb(250, 245, 230)))
+            g.FillRectangle(zemin, kutu);
+        using (var kenar = new Pen(Color.FromArgb(120, 72, 0), 4))
+            g.DrawRectangle(kenar, kutu);
+
+        using var buyuk = new Font("Segoe UI", 30, FontStyle.Bold);
+        var ortala = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+        g.DrawString("Game Over", buyuk, Brushes.OrangeRed, new RectangleF(kutu.X, kutu.Y + 10, kutu.Width, 60), ortala);
     }
 
     // ---------- Girdi ----------

@@ -36,6 +36,9 @@ public class Oyun
     /// <summary>Zeminin kayma animasyonu için toplam kayma miktarı.</summary>
     public float ZeminKaymasi { get; private set; }
 
+    /// <summary>Kuş bir engele veya zemine çarptığında tetiklenir.</summary>
+    public event EventHandler? OyunBitti;
+
     public Oyun(float alanGenisligi, float alanYuksekligi)
     {
         AlanGenisligi = alanGenisligi;
@@ -85,6 +88,25 @@ public class Oyun
         }
 
         ZeminKaymasi = (ZeminKaymasi + Hiz) % 24;
+
+        if (CarpismaVar())
+            Bitir();
+    }
+
+    /// <summary>Kuş zemine değdi mi ya da herhangi bir engelin sütununa çarptı mı?</summary>
+    private bool CarpismaVar()
+    {
+        var kus = Kus.Sinirlar;
+        if (kus.Bottom >= OynanabilirYukseklik)
+            return true;
+
+        return _engeller.Any(e => e.Carpisiyor(kus));
+    }
+
+    private void Bitir()
+    {
+        Durum = OyunDurumu.Bitti;
+        OyunBitti?.Invoke(this, EventArgs.Empty);
     }
 
     private float RastgeleBoslukY()
