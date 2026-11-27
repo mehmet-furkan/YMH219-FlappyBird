@@ -32,12 +32,16 @@ public class Oyun
     public IReadOnlyList<Engel> Engeller => _engeller;
     public OyunDurumu Durum { get; private set; } = OyunDurumu.Hazir;
     public float Hiz { get; private set; } = BaslangicHizi;
+    public int Skor { get; private set; }
 
     /// <summary>Zeminin kayma animasyonu için toplam kayma miktarı.</summary>
     public float ZeminKaymasi { get; private set; }
 
     /// <summary>Kuş bir engele veya zemine çarptığında tetiklenir.</summary>
     public event EventHandler? OyunBitti;
+
+    /// <summary>Kuş bir engeli geçip skor arttığında tetiklenir; argüman yeni skordur.</summary>
+    public event EventHandler<int>? SkorDegisti;
 
     public Oyun(float alanGenisligi, float alanYuksekligi)
     {
@@ -52,6 +56,7 @@ public class Oyun
     {
         Kus = new Kus(AlanGenisligi * 0.25f, OynanabilirYukseklik / 2 - 13);
         Hiz = BaslangicHizi;
+        Skor = 0;
 
         _engeller.Clear();
         for (int i = 0; i < EngelSayisi; i++)
@@ -81,6 +86,14 @@ public class Oyun
         foreach (var engel in _engeller)
         {
             engel.Kaydir(Hiz);
+
+            // Engelin sağ kenarı kuşun soluna geçtiyse engel aşılmıştır: bir kez puan ver.
+            if (!engel.Gecildi && engel.X + engel.Genislik < Kus.X)
+            {
+                engel.Gecildi = true;
+                Skor++;
+                SkorDegisti?.Invoke(this, Skor);
+            }
 
             // Soldan çıkan engeli en sağdaki engelin arkasına taşı.
             if (engel.EkrandanCikti)

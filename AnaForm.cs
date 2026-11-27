@@ -40,6 +40,9 @@ public partial class AnaForm : Form
         ArkaPlaniCiz(g);
         _oyun.Ciz(g);
 
+        if (_oyun.Durum != OyunDurumu.Bitti)
+            SkoruCiz(g);
+
         if (_oyun.Durum == OyunDurumu.Bitti)
             OyunBittiPaneliniCiz(g);
     }
@@ -49,6 +52,20 @@ public partial class AnaForm : Form
         var alan = oyunPaneli.ClientRectangle;
         using var gokyuzu = new LinearGradientBrush(alan, Color.FromArgb(125, 211, 252), Color.FromArgb(224, 242, 254), 90f);
         g.FillRectangle(gokyuzu, alan);
+    }
+
+    /// <summary>Ekranın üst ortasına büyük, kenarlıklı skor yazısı çizer.</summary>
+    private void SkoruCiz(Graphics g)
+    {
+        string metin = _oyun.Skor.ToString();
+        using var yol = new GraphicsPath();
+        using var yaziTipi = new FontFamily("Segoe UI");
+        var ortala = new StringFormat { Alignment = StringAlignment.Center };
+        yol.AddString(metin, yaziTipi, (int)FontStyle.Bold, 64, new RectangleF(0, 30, oyunPaneli.Width, 90), ortala);
+
+        using var kenar = new Pen(Color.FromArgb(60, 40, 0), 6) { LineJoin = LineJoin.Round };
+        g.DrawPath(kenar, yol);
+        g.FillPath(Brushes.White, yol);
     }
 
     /// <summary>Ekranı karartıp ortada "Game Over" kutusu çizer.</summary>
@@ -67,6 +84,10 @@ public partial class AnaForm : Form
         using var buyuk = new Font("Segoe UI", 30, FontStyle.Bold);
         var ortala = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
         g.DrawString("Game Over", buyuk, Brushes.OrangeRed, new RectangleF(kutu.X, kutu.Y + 10, kutu.Width, 60), ortala);
+
+        using var orta = new Font("Segoe UI", 18, FontStyle.Bold);
+        using var yaziRengi = new SolidBrush(Color.FromArgb(70, 50, 20));
+        g.DrawString($"Skor: {_oyun.Skor}", orta, yaziRengi, new RectangleF(kutu.X, kutu.Y + 75, kutu.Width, 36), ortala);
     }
 
     // ---------- Girdi ----------
