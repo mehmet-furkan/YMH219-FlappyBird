@@ -27,6 +27,9 @@ public class Kus : OyunNesnesi
 
     public void Zipla() => DikeyHiz = ZiplamaHizi;
 
+    /// <summary>Kuş yukarı doğru hareket ediyorsa kanat yukarıda çizilir.</summary>
+    public bool KanatYukarida => DikeyHiz < -2;
+
     /// <summary>Bir kare ilerletir: hıza yer çekimini ekler, konumu hıza göre değiştirir.</summary>
     public void Guncelle()
     {
@@ -58,9 +61,10 @@ public class Kus : OyunNesnesi
         using (var kalem = new Pen(Color.FromArgb(120, 72, 0), 2))
             g.DrawEllipse(kalem, govde);
 
-        // kanat
-        g.FillEllipse(Brushes.White, -12, 0, 14, 9);
-        g.DrawEllipse(Pens.SaddleBrown, -12, 0, 14, 9);
+        // kanat: kuş yükselirken yukarıda, düşerken aşağıda (kanat çırpma görüntüsü)
+        float kanatY = KanatYukarida ? -7 : 1;
+        g.FillEllipse(Brushes.White, -12, kanatY, 14, 9);
+        g.DrawEllipse(Pens.SaddleBrown, -12, kanatY, 14, 9);
         // göz
         g.FillEllipse(Brushes.White, 5, -9, 10, 10);
         g.FillEllipse(Brushes.Black, 10, -6, 4, 4);
