@@ -5,7 +5,7 @@ namespace FlappyBird;
 
 /// <summary>
 /// Oyun penceresi. Timer her ~16 ms'de bir oyunu bir kare ilerletir ve paneli yeniden çizdirir.
-/// Klavye: Space / Yukarı ok = zıpla, Enter / R = yeniden başla.
+/// Klavye: Space / Yukarı ok = zıpla, P = duraklat, Enter / R = yeniden başla.
 /// Form sadece girdiyi Oyun'a iletir ve çizer; kurallar Oyun sınıfındadır.
 /// </summary>
 public partial class AnaForm : Form
@@ -61,6 +61,8 @@ public partial class AnaForm : Form
 
         if (_oyun.Durum == OyunDurumu.Hazir)
             HazirYazisiniCiz(g);
+        else if (_oyun.Durum == OyunDurumu.Duraklatildi)
+            DuraklatildiYazisiniCiz(g);
         else if (_oyun.Durum == OyunDurumu.Bitti)
             OyunBittiPaneliniCiz(g);
     }
@@ -115,6 +117,19 @@ public partial class AnaForm : Form
             new RectangleF(0, kutu.Bottom + 8, oyunPaneli.Width, 26), ortala);
     }
 
+    private void DuraklatildiYazisiniCiz(Graphics g)
+    {
+        using (var karartma = new SolidBrush(Color.FromArgb(90, 0, 0, 0)))
+            g.FillRectangle(karartma, oyunPaneli.ClientRectangle);
+
+        var ortala = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+        using var buyuk = new Font("Segoe UI", 28, FontStyle.Bold);
+        using var kucuk = new Font("Segoe UI", 12);
+        float orta = oyunPaneli.Height / 2f;
+        g.DrawString("Duraklatıldı", buyuk, Brushes.White, new RectangleF(0, orta - 40, oyunPaneli.Width, 50), ortala);
+        g.DrawString("Devam etmek için P", kucuk, Brushes.White, new RectangleF(0, orta + 12, oyunPaneli.Width, 26), ortala);
+    }
+
     /// <summary>Ekranı karartıp ortada "Game Over" kutusu çizer.</summary>
     private void OyunBittiPaneliniCiz(Graphics g)
     {
@@ -154,6 +169,9 @@ public partial class AnaForm : Form
             case Keys.Space or Keys.Up:
                 _oyun.Zipla();
                 e.SuppressKeyPress = true;
+                break;
+            case Keys.P:
+                _oyun.DuraklatVeyaDevamEt();
                 break;
             case Keys.Enter or Keys.R:
                 _oyun.YenidenBaslat();

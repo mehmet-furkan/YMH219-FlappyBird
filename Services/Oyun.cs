@@ -87,6 +87,15 @@ public class Oyun
         SkorDegisti?.Invoke(this, Skor);
     }
 
+    /// <summary>P tuşu: oynanırken duraklatır, duraklatılmışken devam ettirir.</summary>
+    public void DuraklatVeyaDevamEt()
+    {
+        if (Durum == OyunDurumu.Oynaniyor)
+            Durum = OyunDurumu.Duraklatildi;
+        else if (Durum == OyunDurumu.Duraklatildi)
+            Durum = OyunDurumu.Oynaniyor;
+    }
+
     /// <summary>Space/yukarı tuşu: oyun hazırsa başlatır, oynanıyorsa kuşu zıplatır.</summary>
     public void Zipla()
     {
