@@ -19,6 +19,9 @@ public class Oyun
     private const int EngelSayisi = 3;
     private const float EngelAraligi = 230;   // iki engel arasındaki yatay mesafe
     private const float BaslangicHizi = 3.2f;
+    private const float SeviyeBasinaHizArtisi = 0.4f;
+    private const float AzamiHiz = 6.5f;
+    private const int SeviyeBasinaSkor = 5;
 
     private readonly Random _rastgele = new();
     private readonly SkorDeposu? _skorDeposu;
@@ -35,6 +38,9 @@ public class Oyun
     public float Hiz { get; private set; } = BaslangicHizi;
     public int Skor { get; private set; }
     public int EnYuksekSkor { get; private set; }
+
+    /// <summary>Her 5 puanda bir artar; seviye arttıkça engeller hızlanır.</summary>
+    public int Seviye => Skor / SeviyeBasinaSkor + 1;
 
     /// <summary>Son biten oyunda en yüksek skor geçildiyse true.</summary>
     public bool YeniRekor { get; private set; }
@@ -108,6 +114,7 @@ public class Oyun
             {
                 engel.Gecildi = true;
                 Skor++;
+                Hiz = Math.Min(BaslangicHizi + (Seviye - 1) * SeviyeBasinaHizArtisi, AzamiHiz);
                 SkorDegisti?.Invoke(this, Skor);
             }
 

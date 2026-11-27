@@ -84,6 +84,11 @@ public partial class AnaForm : Form
         using var kenar = new Pen(Color.FromArgb(60, 40, 0), 6) { LineJoin = LineJoin.Round };
         g.DrawPath(kenar, yol);
         g.FillPath(Brushes.White, yol);
+
+        if (_oyun.Durum == OyunDurumu.Hazir) return;
+        using var kucuk = new Font("Segoe UI", 12, FontStyle.Bold);
+        using var renk = new SolidBrush(Color.FromArgb(200, 30, 41, 59));
+        g.DrawString($"Seviye {_oyun.Seviye}", kucuk, renk, new RectangleF(0, 118, oyunPaneli.Width, 24), ortala);
     }
 
     /// <summary>Oyun başlamadan önce gösterilen başlık ve "Space ile başla" yazısı.</summary>
@@ -104,6 +109,10 @@ public partial class AnaForm : Form
         using var yazi = new Font("Segoe UI", 16, FontStyle.Bold);
         using var renk = new SolidBrush(Color.FromArgb(30, 64, 175));
         g.DrawString("Space ile başla", yazi, renk, kutu, ortala);
+
+        using var kucuk = new Font("Segoe UI", 11, FontStyle.Bold);
+        g.DrawString($"En yüksek skor: {_oyun.EnYuksekSkor}", kucuk, renk,
+            new RectangleF(0, kutu.Bottom + 8, oyunPaneli.Width, 26), ortala);
     }
 
     /// <summary>Ekranı karartıp ortada "Game Over" kutusu çizer.</summary>
